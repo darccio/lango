@@ -14,12 +14,13 @@ A Markov chain algorithm generates text by creating a statistical model of
 potential textual suffixes for a given prefix.
 
 To generate text using this table we select an initial prefix ("d", for
-example), choose one of the suffixes associated with that prefix by looking
-to the most frequent ("a", for example),
-and then create a new prefix by removing the first word from the prefix
-and appending the suffix (making the new prefix is "da"). Repeat this process
-until we can't find any suffixes for the current prefix or we exceed the length
-limit.
+example), choose one of the suffixes associated with that prefix by Lango
+Algorithm (check select() function), and then create a new prefix by removing
+the first word from the prefix and appending the suffix (making the new prefix is "da",
+supposing next is "a").
+
+Repeat this process until we can't find any suffixes for the current prefix 
+or we exceed the length limit.
 */
 package main
 
