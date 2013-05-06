@@ -27,7 +27,7 @@ const (
 	Apical /* Tongue tip */
 	Subapical /* Underside of tongue */
 	Dorsal /* Tongue body */
-	Radical /* Tongue root +/
+	Radical /* Tongue root */
 	Laryngeal /* Larynx */
 
 	/* Passive */
@@ -75,12 +75,34 @@ func (p *Place) Position() (position Position) {
 	return position
 }
 
-type Manner struct {
-	
-}
+type Manner int
+const (
+	/* Pulmonic */
+	Nasal Manner = iota
+	Stop
+	SibilantFricative
+	NonSibilantFricative
+	Approximant
+	Flap
+	Trill
+	LateralFricative
+	LateralApproximant
+	LateralFlap
+	Affricate
+
+	/* Co-articulated consonants */
+	Continuant
+	Occlusive
+
+	/* Non-pulmonic */
+	Click
+	Implosive
+	Ejective
+)
 
 type Phoneme struct {
 	Place Place
 	Manner Manner
 	Voiced bool
 }
+
