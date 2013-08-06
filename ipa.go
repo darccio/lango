@@ -91,8 +91,8 @@ const (
 	Affricate
 
 	/* Co-articulated consonants */
-	Continuant
 	Occlusive
+	Continuant
 
 	/* Non-pulmonic */
 	Click
@@ -101,8 +101,137 @@ const (
 )
 
 type Phoneme struct {
-	Place Place
-	Manner Manner
-	Voiced bool
+	Place      *Place
+	Manner     Manner
+	Voiced     bool
+	Labialized bool
+	Nasalized  bool
 }
 
+func NewPhoneme(place *Place, manner Manner, voiced bool) *Phoneme {
+	return &Phoneme{place, manner, voiced, false, false}
+}
+
+func NewLabializedPhoneme(place *Place, manner Manner, voiced bool) *Phoneme {
+	return &Phoneme{place, manner, voiced, true, false}
+}
+
+func NewNasalizedPhoneme(place *Place, manner Manner, voiced bool) *Phoneme {
+	return &Phoneme{place, manner, voiced, false, true}
+}
+
+func (p *Phoneme) Pulmonic() bool {
+	switch p.Manner {
+		case Click, Implosive, Ejective:
+			return false
+	}
+	return true
+}
+
+func (p *Phoneme) Occlusive() bool {
+	// Continuant nasal phonemes don't exist in real languages.
+	switch p.Manner {
+		case Occlusive, Nasal, Stop, Affricate, Implosive, Ejective, Click:
+			return true
+	}
+	return false
+}
+
+func (p *Phoneme) Oral() bool {
+	return p.Manner != Nasal
+}
+
+func (p *Phoneme) Central() bool {
+	switch p.Manner {
+		case SibilantFricative, NonSibilantFricative, Trill, Flap, Approximant:
+			return true
+	}
+	return false
+}
+
+func (p *Phoneme) Lateral() bool {
+	switch p.Manner {
+		case LateralFricative, LateralApproximant, LateralFlap:
+			return true
+	}
+	return false
+}
+
+func (p *Phoneme) NoCentralLateralDichotomy() bool {
+	return !p.Central() && !p.Lateral()
+}
+
+// TODO reflection test
+var (
+	BilNas = NewPhoneme(Bilabial, Nasal, false)
+	BilNasV = NewPhoneme(Bilabial, Nasal, true)
+	LabNas = NewPhoneme(Labiodental, Nasal, false)
+	LabNasV = NewPhoneme(Labiodental, Nasal, true)
+	DenNas = NewPhoneme(Dental, Nasal, false)
+	DenNasV = NewPhoneme(Dental, Nasal, true)
+	AlvNas = NewPhoneme(Alveolar, Nasal, false)
+	AlvNasV = NewPhoneme(Alveolar, Nasal, true)
+	PaaNasV = NewPhoneme(PalatoAlveolar, Nasal, true)
+	RetNas = NewPhoneme(Retroflex, Nasal, false)
+	RetNasV = NewPhoneme(Retroflex, Nasal, true)
+	AlpNasV = NewPhoneme(AlveoloPalatal, Nasal, true)
+	PalNas = NewPhoneme(Palatal, Nasal, false)
+	PalNasV = NewPhoneme(Palatal, Nasal, true)
+	VelNas = NewPhoneme(Velar, Nasal, false)
+	VelNasV = NewPhoneme(Velar, Nasal, true)
+	UvuNas = NewPhoneme(Uvular, Nasal, false)
+	UvuNasV = NewPhoneme(Uvular, Nasal, true)
+	// Nasal palatal approximant
+	PalNAppV = NewNasalizedPhoneme(Palatal, Approximant, true)
+	// Labio-velar approximant
+	VelLAppV = NewLabializedPhoneme(Velar, Approximant, true)
+	// Nasal labio-velar approximant
+	VelNLAppV = &Phoneme{Velar, Approximant, true, true, true}
+	// Voiceless nasal glottal approximant
+	GloNApp = NewNasalizedPhoneme(Glottal, Approximant, false)
+	GloNStop = NewNasalizedPhoneme(Glottal, Stop, false)
+	GloStop = NewPhoneme(Glottal, Stop, false)
+)
+
+var Phonemes = map[string]*Phoneme {
+	// Nasal
+	"m̥": BilNas,
+	"m": BilNasV,
+	"ɱ̊": LabNas,
+	"ɱ": LabNasV,
+	"n̪̊": DenNas,
+	"n̪": DenNasV,
+	"n̥": AlvNas,
+	"n": AlvNasV,
+	"n̠": PaaNasV,
+	"ɳ̊": RetNas,
+	"ɳ": RetNasV,
+	"ɲ̟": AlpNasV,
+	"ɲ̥": PalNas,
+	"ɲ": PalNasV,
+	"ŋ̊": VelNas,
+	"ŋ": VelNasV,
+	"ɴ̥": UvuNas,
+	"ɴ": UvuNasV,
+	// Approximant
+	"w": VelLAppV,
+	// Stop
+	"ʔ": GloStop,
+	// Nasalized
+	"ʔ̃": GloNStop,
+	// Nasal glides
+	"ȷ̃": PalNAppV,
+	"w̃": VelNLAppV,
+	"h̃": GloNApp,
+	"": nil,
+}
+
+var Equivalences = map[string][]string {
+	"n̪": { "n" },
+	"n̪̊": { "n̥" },
+	"m̪": { "ɱ" },
+	"ɳ̥": { "ɳ̊" },
+	"n̠ʲ": { "ɲ̟" },
+	"ȵ": { "ɲ̟" },
+	"": { "" },
+}
